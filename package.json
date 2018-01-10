@@ -1,0 +1,23 @@
+{
+  "name": "pcraft",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.coding.net/ncbql/PCraft.git"
+  },
+  "author": "Shirasawa",
+  "license": "MIT",
+  "devDependencies": {
+    "tslint": "^5.8.0",
+    "tslint-config-standard": "^7.0.0",
+    "typescript": "^2.6.2"
+  },
+  "dependencies": {
+    "@types/node": "^9.3.0"
+  }
+}
