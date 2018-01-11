@@ -25,32 +25,35 @@ const styles = {
   reset: 'r'
 }
 
-interface StyledText {
+interface StyleFuns<T> {
+  black?: T
+  blueDark?: T
+  greenDark?: T
+  aquaDark?: T
+  redDark?: T
+  purpleDark?: T
+  gold?: T
+  gray?: T
+  grayDark?: T
+  blue?: T
+  green?: T
+  aqua?: T
+  red?: T
+  purple?: T
+  yellow?: T
+  white?: T
+  random?: T,
+  bold?: T,
+  strikethrough?: T,
+  underline?: T,
+  italic?: T,
+  reset?: T
+}
+
+interface StyledText extends StyleFuns<StyledText> {
   (...text: string[]): string
   color?: string
   styles?: string[]
-  black?: StyledText
-  blueDark?: StyledText
-  greenDark?: StyledText
-  aquaDark?: StyledText
-  redDark?: StyledText
-  purpleDark?: StyledText
-  gold?: StyledText
-  gray?: StyledText
-  grayDark?: StyledText
-  blue?: StyledText
-  green?: StyledText
-  aqua?: StyledText
-  red?: StyledText
-  purple?: StyledText
-  yellow?: StyledText
-  white?: StyledText
-  random?: StyledText,
-  bold?: StyledText,
-  strikethrough?: StyledText,
-  underline?: StyledText,
-  italic?: StyledText,
-  reset?: StyledText
 }
 
 const set = () => { throw new Error('Cannot define! ') }
@@ -67,7 +70,25 @@ const create = (c: string, s?: string): StyledText => {
   return Object.defineProperties(obj, props)
 }
 
+const regexp = /#+{\s*([\s\S]+?)}/g
+const raw = (str: string | TemplateStringsArray, ...args: any[]): string => {
+  if (typeof str !== 'string') str = String.raw(str, ...args)
+  return str.replace(regexp, (a, b: string) => {
+    if (a.startsWith('##')) return a
+    const [styleStr, ...strs] = b.split(' ')
+    const style = styleStr.split('.')
+    const result = style.map(s => styles[s]).filter(Boolean)
+    const color = style.reverse().find(s => !!colors[s])
+    if (color) result.unshift(colors[color])
+    const text = strs.join(' ')
+    return result.length ? '§' + result.join('§') + text + '§r' : text
+  })
+}
+
+interface Exported extends StyleFuns<StyledText> {
+  (str: string | TemplateStringsArray, ...args: any[]): string
+}
 const props2 = {}
 for (const key in colors) props2[key] = { get: () => create(key), set }
 for (const key in styles) props2[key] = { get: () => create(null, key), set }
-export default Object.defineProperties({}, props2) as StyledText
+export default Object.defineProperties(raw, props2) as Exported
