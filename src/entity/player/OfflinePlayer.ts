@@ -1,4 +1,4 @@
-import Nameable from '../../Nameable'
+import Nameable from '../../type/Nameable'
 
 export default class OfflinePlayer implements Nameable {
   protected readonly p: any

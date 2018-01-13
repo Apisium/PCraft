@@ -40,4 +40,6 @@ export default class Player extends OfflinePlayer implements Entity {
   public send (...msg: string[]) {}
   public canSee (player: Player): boolean { return false }
   public chat (msg: string) {}
+
+  public get isGlowing (): boolean { return false }
 }

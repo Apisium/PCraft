@@ -1,8 +1,8 @@
 import World from '../World'
-import Vector from '../Vector'
-import Location from '../Location'
-import Nameable from '../Nameable'
-import CommandSender from '../CommandSender'
+import Vector from '../type/Vector'
+import Location from '../type/Location'
+import Nameable from '../type/Nameable'
+import CommandSender from '../type/CommandSender'
 import PistonMoveReaction from '../enum/PistonMoveReaction'
 import EntityDamageEvent from '../event/entity/EntityDamageEvent'
 

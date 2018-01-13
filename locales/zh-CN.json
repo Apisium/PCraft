@@ -1,0 +1,10 @@
+{
+  "Error": "错误",
+  "Warn": "警告",
+  "Info": "信息",
+
+  "The plugin %s already existed!": "插件 %s 已经存在!",
+  "The plugin %s loaded failure!": "插件 %s 载入失败!",
+  "Dependencie(s) %s of the plugin %s loading failure!": "依赖项 %s (%s 插件的) 加载失败!",
+  "The version of Pcraft used by the plugin %s is wrong! (current: %s, need: %s)": "插件 %s 需要的 Pcraft 版本错误! (当前: %s, 需要: %s)"
+}
