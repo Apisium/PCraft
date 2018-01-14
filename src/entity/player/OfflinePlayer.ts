@@ -1,6 +1,7 @@
 import Nameable from '../../type/Nameable'
+import ServerOperator from '../../permission/ServerOperator'
 
-export default class OfflinePlayer implements Nameable {
+export default class OfflinePlayer implements Nameable, ServerOperator {
   protected readonly p: any
   protected constructor (p: any) { this.p = p }
   get name (): string { return '' }

@@ -1,12 +1,14 @@
 import { Argv } from 'yargs'
+import App from '../App'
+import Plugin from '../plugin/Plugin'
 
-export default class Commander {
-  public readonly app: any
-  public readonly plugin: any
-  public readonly config: any
-  constructor (app: any, plugin: any, yargs: Argv) {
+export default class Commander<T = any> {
+  public readonly app: App
+  public readonly plugin: Plugin
+  public readonly config: T
+  constructor (app: App, plugin: Plugin, yargs: Argv) {
     this.app = app
     this.plugin = plugin
-    this.config = app.config[plugin.name]
+    this.config = plugin.config
   }
 }

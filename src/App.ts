@@ -38,7 +38,9 @@ export default class Application {
     global.console.info = (...text) => info(PCRAFT, INFO, ...text)
     createInterface(process.stdout).on('line', input => server.log(input))
 
-    loadPlugin(plugins, this)
+    loadPlugin(plugins, this).then(pkg => {
+      server.onDisable = () => Promise.all(Object.values(p => p.clear).filter(Boolean))
+    })
   }
   public banIp (address: string) { apps[this.i].banIp(address) }
   public unBanIp (address: string) { apps[this.i].unBanIp(address) }
