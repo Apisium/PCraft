@@ -8,7 +8,7 @@ import { resolve as resolvePath, join } from 'path'
 import App from '../App'
 import PackageInfo from './PackageInfo'
 import Listener from '../event/Listener'
-import Command from '../command/Command'
+import Args from '../command/Args'
 import Commander from '../command/Commander'
 import CommandSender from '../type/CommandSender'
 import Plugin, { IListener, ICommand } from './Plugin'
@@ -117,9 +117,9 @@ export default (plugins: string[], app: App) => {
       }
     }
     fn.addCommanderAll = (path: string) => loadClass(path)
-      .then(c => (c = c.map(co => co(fn.addCommander))) && (() => c.forEach(f => f())))
-    fn.addCommander = (cmd: string, listener: typeof Commander | ((cmd: Command) => any)) => {
-      if (!cmd || typeof cmd !== 'string') throw new TypeError('参数类型错误')
+      .then(c => (c = c.map(co => fn.addCommander(co.commandName, co))) && (() => c.forEach(f => f())))
+    fn.addCommander = (cmd: string, listener: typeof Commander | ((cmd: Args) => any)) => {
+      if (!cmd || typeof cmd !== 'string') throw new TypeError('命令名为空!')
       const length = cmd.length
       if (listener instanceof Commander) {
         const Cmder = listener as typeof Commander
@@ -140,7 +140,7 @@ export default (plugins: string[], app: App) => {
         }
       } else if (typeof listener === 'function') {
         fn.commands[cmd] = (sender: CommandSender, command: string) => {
-          const lis = listener as (cmd: Command) => any
+          const lis = listener as (cmd: Args) => any
           const text = command.substring(length).trim()
           lis(Object.assign(yargs(text).argv, { sender, text, $0: cmd }))
         }

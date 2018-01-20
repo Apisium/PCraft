@@ -4,6 +4,7 @@ import { createInterface } from 'readline'
 
 import color from './colors'
 import Y18n from './type/Y18n'
+import Application from './Application'
 import loadPlugin from './plugin/loadPlugin'
 
 const { pcraft } = require('../package.json')
@@ -16,37 +17,49 @@ const LEFT = gray('[')
 const RIGHT = gray(']')
 
 const S = Symbol()
-export default class Application {
-  public readonly pcraft: number
-  public readonly y: Y18n = y18n({ locale: 'zh_CN', directory: join(__dirname, '../locales') })
-  private i: symbol
-  constructor (server: any, plugins: string[]) {
-    const y = this.y.__
-    const ERROR = LEFT + red(y('Error')) + RIGHT
-    const WARN = LEFT + gold(y('Warn')) + RIGHT
-    const INFO = LEFT + green(y('Info')) + RIGHT
+export default (server: any, { locale = 'zh_CN', dependencies = {} }) => {
+  const y = y18n({ locale, directory: join(__dirname, '../locales') })
+  const _ = y.__
+  const ERROR = LEFT + red(y('Error')) + RIGHT
+  const WARN = LEFT + gold(y('Warn')) + RIGHT
+  const INFO = LEFT + green(y('Info')) + RIGHT
 
-    const id = Symbol('Application')
-    Object.defineProperties(this, {
-      i: { value: id },
-      pcraft: { value: pcraft }
-    })
-    apps[this.i] = server
-    global.console.log = (...text) => log(PCRAFT, ...text)
-    global.console.error = (...text) => error(PCRAFT, ERROR, ...text)
-    global.console.warn = (...text) => warn(PCRAFT, WARN, ...text)
-    global.console.info = (...text) => info(PCRAFT, INFO, ...text)
-    createInterface(process.stdout).on('line', input => server.log(input))
+  const id = Symbol('Application')
+  Object.defineProperties(this, {
+    i: { value: id },
+    pcraft: { value: pcraft }
+  })
+  apps[this.i] = server
+  global.console.log = (...text) => log(PCRAFT, ...text)
+  global.console.error = (...text) => error(PCRAFT, ERROR, ...text)
+  global.console.warn = (...text) => warn(PCRAFT, WARN, ...text)
+  global.console.info = (...text) => info(PCRAFT, INFO, ...text)
+  createInterface(process.stdout).on('line', input => server.log(input))
 
-    loadPlugin(plugins, this).then(pkg => {
-      server.onDisable = () => Promise.all(Object.values(p => p.clear).filter(Boolean))
-    })
+  loadPlugin(
+    Object
+      .keys(dependencies)
+      .filter(key => key.startsWith('pcraft-plugin-'))
+      .map(key => dependencies[key]),
+      this
+  ).then(pkg => {
+    server.onDisable = () => Promise.all(Object.values(p => p.clear).filter(Boolean))
+  })
+  const app: Application = {
+    y,
+    pcraft,
+    get bannedPlayers () { return null },
+    banIp (address: string) { server.banIp(address) },
+    unBanIp (address: string) { server.unBanIp(address) },
+    broadcast (msg: string, permission?: string) {
+      if (performance) server.broadcast(msg, permission)
+      else server.broadcastMessage(msg)
+    },
+    emit (event: any, callback: () => void) {
+      console.log(event)
+      callback()
+    },
+    disable () {}
   }
-  public banIp (address: string) { apps[this.i].banIp(address) }
-  public unBanIp (address: string) { apps[this.i].unBanIp(address) }
-  public broadcast (msg: string, permission?: string) {
-    if (performance) apps[this.i].broadcast(msg, permission)
-    else apps[this.i].broadcastMessage(msg)
-  }
-  public get bannedPlayers () { return null }
+  return app
 }

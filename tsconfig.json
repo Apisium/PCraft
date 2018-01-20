@@ -6,7 +6,7 @@
     "module": "CommonJS",
     "sourceMap": true,
     "experimentalDecorators": true,
-    "outDir": "./build"
+    "outDir": "./lib"
   },
   "exclude": [
     "node_modules"

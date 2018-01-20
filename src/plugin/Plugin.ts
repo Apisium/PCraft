@@ -1,7 +1,7 @@
 import Event from '../event/Event'
+import Args from '../command/Args'
 import PackageInfo from './PackageInfo'
 import Listener from '../event/Listener'
-import Command from '../command/Command'
 import Commander from '../command/Commander'
 import CommandSender from '../type/CommandSender'
 
@@ -16,7 +16,7 @@ export default interface Plugin {
   _onDisable? (): any
   clear? (): any
 
-  addCommander? (cmd: string, listener: typeof Commander | ((cmd: Command) => any)): Cancel
+  addCommander? (cmd: string, listener: typeof Commander | ((cmd: Args) => any)): Cancel
   addCommanderAll? (path: string): Promise<Cancel>
 
   render? (name: string, data?: any): string
