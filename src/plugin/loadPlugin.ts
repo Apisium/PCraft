@@ -5,7 +5,7 @@ import upperFirst from 'lodash/upperFirst'
 import { Argv } from 'yargs'
 import { resolve as resolvePath, join } from 'path'
 
-import App from '../App'
+import Application from '../Application'
 import PackageInfo from './PackageInfo'
 import Listener from '../event/Listener'
 import Args from '../command/Args'
@@ -21,7 +21,7 @@ const loadClass = (dir: string) => fs.readdir(dir)
       .map(n => (n = join(dir, n)) && fs.stat(n).then(p => p.isFile() && import(n)))
   ))
   .then(p => p.filter(n => typeof n === 'function'))
-export default (plugins: string[], app: App) => {
+export default (plugins: string[], app: Application) => {
   plugins = [...new Set(plugins)]
   const { y: { __: _ }, pcraft } = app
   let len = plugins.length
@@ -35,7 +35,7 @@ export default (plugins: string[], app: App) => {
     } else return new Promise(resolve => resolves.push(resolve))
   }
   const load = (name: string) => (async () => {
-    let plugin: (register: Plugin, app?: App) => any
+    let plugin: (register: Plugin, app?: Application) => any
     if (typeof plugin !== 'function') {
       throw new TypeError(_('The plugin %s loaded failure!', name))
     }

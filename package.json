@@ -2,10 +2,11 @@
   "name": "pcraft",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index",
   "pcraft": 0,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "t": "tsc --watch",
+    "b": "npx babel build --watch --out-dir lib --source-maps inline"
   },
   "repository": {
     "type": "git",
@@ -14,6 +15,10 @@
   "author": "Shirasawa",
   "license": "MIT",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-es2015-shorthand-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "tslint": "^5.8.0",
     "tslint-config-standard": "^7.0.0",
     "typescript": "^2.6.2"

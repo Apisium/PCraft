@@ -8,6 +8,4 @@ export default interface Application {
   banIp (address: string): void
   unBanIp (address: string): void
   broadcast (msg: string, permission?: string): void
-  emit (event: any, callback: () => void): void
-  disable (): void
 }
