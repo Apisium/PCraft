@@ -11,6 +11,7 @@
     "no-empty": false,
     "object-literal-sort-keys": false,
     "interface-name": false,
-    "forin": false
+    "forin": false,
+    "align": false
   }
 }

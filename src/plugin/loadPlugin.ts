@@ -1,8 +1,7 @@
-import fs from 'fs-extra'
+import * as fs from 'fs-extra'
 import _yargs from 'yargs/Yargs'
-import camelCase from 'lodash/camelCase'
-import upperFirst from 'lodash/upperFirst'
 import { Argv } from 'yargs'
+import { camelCase, upperFirst } from 'lodash'
 import { resolve as resolvePath, join } from 'path'
 
 import Application from '../Application'
@@ -20,7 +19,8 @@ const loadClass = (dir: string) => fs.readdir(dir)
       .filter(n => n.endsWith('.js'))
       .map(n => (n = join(dir, n)) && fs.stat(n).then(p => p.isFile() && import(n)))
   ))
-  .then(p => p.filter(n => typeof n === 'function'))
+  .then(p => p.map(n => n && n.default ? n.default : n)
+    .filter(n => typeof n === 'function'))
 export default (plugins: string[], app: Application) => {
   plugins = [...new Set(plugins)]
   const { y: { __: _ }, pcraft } = app
@@ -35,15 +35,18 @@ export default (plugins: string[], app: Application) => {
     } else return new Promise(resolve => resolves.push(resolve))
   }
   const load = (name: string) => (async () => {
-    let plugin: (register: Plugin, app?: Application) => any
-    if (typeof plugin !== 'function') {
-      throw new TypeError(_('The plugin %s loaded failure!', name))
-    }
+    console.info(_('The plugin %s is loading!', name))
+
+    let plugin: any
     try {
       plugin = await import(name)
+      if (plugin.default) plugin = plugin.default
     } catch (e) {
       console.error(_('The plugin %s loaded failure!', name))
       throw e
+    }
+    if (typeof plugin !== 'function') {
+      throw new TypeError(_('The plugin %s loaded failure!', name))
     }
     const fn: Plugin = async (info: string | PackageInfo, dir?: string, options?: {}) => {
       let pkg: PackageInfo
@@ -97,16 +100,10 @@ export default (plugins: string[], app: Application) => {
       .then(c => (c = c.map(Li => fn.addListener(new Li(app, fn)))) && (() => c.forEach(f => f())))
     fn.addListener = (type: string | typeof Listener, listener?: IListener) => {
       let start = fn.listeners.length - 1
-      if (listener instanceof Listener) {
-        for (const f of Object.values(listener)) {
-          if (typeof f === 'function' && f.eventName) {
-            const fun: IListener = f.bind(fn)
-            fun.type = f.evenType
-            fn.listeners.push(fun)
-          }
-        }
+      if (type instanceof Listener) {
+        fn.listeners = fn.listeners.concat(type.handlers.filter(f => f.eventType))
       } else if (typeof type === 'string' && type) {
-        listener.type = type
+        listener.eventType = type
         fn.listeners.push(listener)
       } else {
         throw new Error('参数错误!')
@@ -159,6 +156,8 @@ export default (plugins: string[], app: Application) => {
     fn.onDisable = (fun: () => any) => (fn._onDisable = fun)
     fn.clear = () => ((fn.listeners = null), (fn.commands = null), fn._onDisable && fn._onDisable())
     await plugin(fn, app)
+
+    console.info(_('The plugin %s is loaded!', name))
   })().catch(e => {
     delete pkgs[name]
     console.error(e)

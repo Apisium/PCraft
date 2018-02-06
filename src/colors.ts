@@ -25,7 +25,7 @@ const styles = {
   reset: 'r'
 }
 
-interface StyleFuns<T> {
+export interface StyleFuns<T> {
   black?: T
   blueDark?: T
   greenDark?: T
@@ -50,7 +50,7 @@ interface StyleFuns<T> {
   reset?: T
 }
 
-interface StyledText extends StyleFuns<StyledText> {
+export interface StyledText extends StyleFuns<StyledText> {
   (...text: string[]): string
   color?: string
   styles?: string[]
@@ -85,7 +85,7 @@ const raw = (str: string | TemplateStringsArray, ...args: any[]): string => {
   })
 }
 
-interface Exported extends StyleFuns<StyledText> {
+export interface Exported extends StyleFuns<StyledText> {
   (str: string | TemplateStringsArray, ...args: any[]): string
 }
 const props2 = {}

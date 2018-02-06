@@ -1,3 +1,4 @@
-export default (name: string): any => (target: any) => {
-  target.commandMame = name
+export default (name: string): any => (target, key, descriptor) => {
+  descriptor.value.commandMame = name
+  return descriptor
 }

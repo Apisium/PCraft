@@ -28,10 +28,11 @@ export default interface Plugin {
   addListener? (type: string | typeof Listener, listener?: IListener): Cancel
   [name: string]: any
 }
-type Cancel = () => void
+export type Cancel = () => void
 export interface IListener {
-  (e: any): any
-  type?: string
+  (e: Event): any
+  eventType?: string
+  eventLevel?: number
 }
 export type ICommand = (cmder: CommandSender, cmd: string) => any
 export type RegisterCommand = (cmd: string, listener: Commander | ICommand) => Cancel

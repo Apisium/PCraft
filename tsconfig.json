@@ -4,9 +4,11 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "module": "CommonJS",
-    "sourceMap": true,
+    "sourceMap": false,
     "experimentalDecorators": true,
-    "outDir": "./build"
+    "outDir": "./build",
+    "declaration": true,
+    "declarationDir": "./lib"
   },
   "exclude": [
     "node_modules"

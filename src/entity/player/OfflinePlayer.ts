@@ -1,25 +1,18 @@
 import Nameable from '../../type/Nameable'
 import ServerOperator from '../../permission/ServerOperator'
+import Entity from '../Entity'
 
-export default class OfflinePlayer implements Nameable, ServerOperator {
-  protected readonly p: any
-  protected constructor (p: any) { this.p = p }
-  get name (): string { return '' }
-  get uuid (): string { return '' }
+export default interface OfflinePlayer extends Nameable, ServerOperator, Entity {
+  readonly uuid: string
 
-  get firstPlayed (): number { return 0 }
-  get lastPlayed (): number { return 0 }
+  readonly firstPlayed: number
+  readonly lastPlayed: number
 
-  get isPlayedBefore (): boolean { return false }
-  get isBanned (): boolean { return false }
-  get isOnline (): boolean { return false }
+  readonly isPlayedBefore: boolean
+  readonly isBanned: boolean
+  readonly isOnline: boolean
 
-  set whitelisted (value: boolean) { }
-  get whitelisted (): boolean { return false }
-
-  set op (value: boolean) { }
-  get op (): boolean { return false }
-
-  set customName (value: string) {}
-  get customName (): string { return '' }
+  whitelisted: boolean
+  op: boolean
+  customName: string
 }

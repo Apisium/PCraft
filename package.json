@@ -5,9 +5,10 @@
   "main": "lib/index",
   "pcraft": 0,
   "scripts": {
-    "t": "tsc --watch",
-    "b": "npx babel build --watch --out-dir lib --source-maps inline"
+    "t": "tsc -w",
+    "b": "npx babel build -w --out-dir lib --source-maps"
   },
+  "types": "./lib",
   "repository": {
     "type": "git",
     "url": "https://git.coding.net/ncbql/PCraft.git"

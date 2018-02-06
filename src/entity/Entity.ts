@@ -1,4 +1,4 @@
-import World from '../World'
+import World from '../type/World'
 import Vector from '../type/Vector'
 import Location from '../type/Location'
 import Nameable from '../type/Nameable'
@@ -7,27 +7,27 @@ import PistonMoveReaction from '../enum/PistonMoveReaction'
 import EntityDamageEvent from '../event/entity/EntityDamageEvent'
 
 export default interface Entity extends Nameable, CommandSender {
-  isGlowing: boolean // readonly
-  vehicle: Entity // readonly
-  location: Location // readonly
-  maxFireTicks: number // readonly
-  passengers: Entity[] // readonly
-  pistonMoveReaction: PistonMoveReaction // readonly
-  scoreboardTags: string[] // readonly
-  type: string // readonly
-  uniqueId: string // readonly
-  entityId: number // readonly
-  width: number // readonly
-  world: World // readonly
-  isCustomNameVisible: boolean // readonly
-  isDead: boolean // readonly
-  isEmpty: boolean // readonly
-  height: number // readonly
-  isInvulnerable: boolean // readonly
-  isOnGround: boolean // readonly
-  isSilent: boolean // readonly
-  isValid: boolean // readonly
-  isInsideVehicle: boolean // readonly
+  readonly isGlowing: boolean
+  readonly vehicle: Entity
+  readonly location: Location
+  readonly maxFireTicks: number
+  readonly passengers: Entity[]
+  readonly pistonMoveReaction: PistonMoveReaction
+  readonly scoreboardTags: string[]
+  readonly type: string
+  readonly uniqueId: string
+  readonly entityId: number
+  readonly width: number
+  readonly world: World
+  readonly isCustomNameVisible: boolean
+  readonly isDead: boolean
+  readonly isEmpty: boolean
+  readonly height: number
+  readonly isInvulnerable: boolean
+  readonly isOnGround: boolean
+  readonly isSilent: boolean
+  readonly isValid: boolean
+  readonly isInsideVehicle: boolean
   customNameVisible: boolean
   fallDistance: number
   fireTicks: number

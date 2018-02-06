@@ -1,4 +1,4 @@
-import Entity from './Entity'
+import Entity from '../entity/Entity'
 import Damageable from './Damageable'
 import GameMode from '../enum/GameMode'
 
