@@ -1,10 +1,11 @@
 import World from '../type/World'
 import Vector from '../type/Vector'
 import Location from '../type/Location'
-import Nameable from '../type/Nameable'
-import CommandSender from '../type/CommandSender'
+import Nameable, { define as define1 } from '../type/Nameable'
+import CommandSender, { define as define2 } from '../type/CommandSender'
 import PistonMoveReaction from '../enum/PistonMoveReaction'
 import EntityDamageEvent from '../event/entity/EntityDamageEvent'
+import { defineProps } from '../helpers'
 
 export default interface Entity extends Nameable, CommandSender {
   readonly isGlowing: boolean
@@ -50,3 +51,6 @@ export default interface Entity extends Nameable, CommandSender {
   removeScoreboardTag (tag: string): boolean
   teleport (des: Entity | Location): boolean
 }
+export const define = obj => defineProps(define1(define2(obj)), {
+  isDead: { get: 'isDead' }
+})

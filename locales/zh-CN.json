@@ -1,0 +1,8 @@
+{
+  "Error": "Error",
+  "Warn": "Warn",
+  "Info": "Info",
+  "The plugin §e%s§r is loading!": "The plugin §e%s§r is loading!",
+  "The plugin §e%s§r is loaded!": "The plugin §e%s§r is loaded!",
+  "The command §e/%s§r registration success!": "The command §e/%s§r registration success!"
+}

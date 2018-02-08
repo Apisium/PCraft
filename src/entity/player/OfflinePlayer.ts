@@ -1,6 +1,7 @@
-import Nameable from '../../type/Nameable'
-import ServerOperator from '../../permission/ServerOperator'
-import Entity from '../Entity'
+import Nameable, { define as define1 } from '../../type/Nameable'
+import ServerOperator, { define as define2 } from '../../permission/ServerOperator'
+import Entity, { define as define3 } from '../Entity'
+import { defineProps } from '../../helpers'
 
 export default interface OfflinePlayer extends Nameable, ServerOperator, Entity {
   readonly uuid: string
@@ -13,6 +14,7 @@ export default interface OfflinePlayer extends Nameable, ServerOperator, Entity 
   readonly isOnline: boolean
 
   whitelisted: boolean
-  op: boolean
-  customName: string
 }
+export const define = obj => defineProps(define1(define2(define3(obj))), {
+  uuid: { get: 'getUUID' }
+})

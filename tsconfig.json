@@ -1,14 +1,11 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "module": "CommonJS",
-    "sourceMap": false,
-    "experimentalDecorators": true,
-    "outDir": "./build",
     "declaration": true,
-    "declarationDir": "./lib"
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true
   },
   "exclude": [
     "node_modules"

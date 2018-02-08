@@ -1,5 +1,6 @@
-import Entity from '../Entity'
-import OfflinePlayer from './OfflinePlayer'
+import Entity, { define as define1 } from '../Entity'
+import OfflinePlayer, { define as define2 } from './OfflinePlayer'
+import { defineProps } from '../../helpers'
 
 export default interface Player extends OfflinePlayer, Entity {
   readonly allowFilght: boolean
@@ -19,7 +20,10 @@ export default interface Player extends OfflinePlayer, Entity {
   playerListName: string
   displayName: string
 
-  send (...msg: string[]): void
   canSee (player: Player): boolean
   chat (msg: string): void
 }
+export const define = obj => defineProps(define1(define2(obj)), {
+  level: { get: 'getLevel', set: 'setLevel' }
+})
+export const checkType = obj => !!obj.getPlayerTimeOffset

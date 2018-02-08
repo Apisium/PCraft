@@ -5,5 +5,8 @@
   "plugins": [
     ["transform-object-rest-spread", { "useBuiltIns": true }],
     "transform-es2015-shorthand-properties"
+  ],
+  "ignore": [
+    "*.d.ts"
   ]
 }

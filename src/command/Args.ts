@@ -1,7 +1,9 @@
-import { Arguments } from 'yargs'
+import { Argv } from 'yargs'
 import CommandSender from '../type/CommandSender'
 
-export default interface Args extends Arguments {
-  sender: CommandSender
-  text: string
+export interface Args extends Argv {
+  readonly sender: CommandSender
+  readonly text: string
+  readonly clias: string
 }
+export default Args

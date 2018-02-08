@@ -12,11 +12,16 @@ export default interface Plugin {
   pkg?: PackageInfo
   views?: { [name: string]: (data: any) => string }
   listeners?: IListener[]
-  commands?: { [key: string]: ICommand }
+  commands?: ICommand[]
   _onDisable? (): any
   clear? (): any
 
-  addCommander? (cmd: string, listener: typeof Commander | ((cmd: Args) => any)): Cancel
+  addCommander? (
+    cmd: string,
+    listener: typeof Commander | ((cmd: Args) => any),
+    description?: string,
+    alias?: string[]
+  ): Cancel
   addCommanderAll? (path: string): Promise<Cancel>
 
   render? (name: string, data?: any): string
@@ -34,5 +39,10 @@ export interface IListener {
   eventType?: string
   eventLevel?: number
 }
-export type ICommand = (cmder: CommandSender, cmd: string) => any
+export interface ICommand {
+  (cmder: CommandSender, cmd: string, alias?: string): any
+  commandName?: string
+  commandDescription?: string
+  commandAlias?: string[]
+}
 export type RegisterCommand = (cmd: string, listener: Commander | ICommand) => Cancel
