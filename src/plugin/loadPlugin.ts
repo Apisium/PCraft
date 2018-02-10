@@ -5,12 +5,13 @@ import { camelCase, upperFirst } from 'lodash'
 import { resolve as resolvePath, join } from 'path'
 
 import format from '../format'
-import Application from '../Application'
-import PackageInfo from './PackageInfo'
-import Listener from '../event/Listener'
 import Args from '../command/Args'
+import PackageInfo from './PackageInfo'
+import Application from '../Application'
+import Listener from '../event/Listener'
 import Commander from '../command/Commander'
 import CommandSender from '../type/CommandSender'
+import { COMMAND_MAP, COMMANDS, APPLICATION } from '../symbols'
 import Plugin, { IListener, ICommand } from './Plugin'
 
 const loadClass = (dir: string) => fs.readdir(dir)
@@ -24,6 +25,7 @@ const loadClass = (dir: string) => fs.readdir(dir)
 
 const createArgv = (cmd: string, locale: string, version: string) => {
   const argv = Object.assign(yargs()
+    .wrap(60)
     .locale(locale)
     .help('help').alias('help', 'h')
     .version(version).alias('version', 'v')
@@ -31,14 +33,14 @@ const createArgv = (cmd: string, locale: string, version: string) => {
     {
       $0: cmd,
       text: null,
-      clias: null,
       sender: null,
+      curAlias: null,
       exit: () => {},
       exitProcess: () => {},
       dispatchCmd (text: string) {
         Promise.resolve(argv.parse(text)).then(() => {
           argv.text = null
-          argv.clias = null
+          argv.curAlias = null
           argv.sender = null
         })
       }
@@ -67,37 +69,38 @@ export default (plugins: string[], app: Application) => {
     } else return new Promise(resolve => resolves.push(resolve))
   }
   const load = (name: string) => (async () => {
-    console.info(_('The plugin §e%s§r is loading!', name))
+    const displayName = upperFirst(camelCase(name.substring(14)))
+    console.info(_('The plugin §e%s§r is loading!', displayName))
 
     let plugin: any
     try {
       plugin = await import(name)
       if (plugin.default) plugin = plugin.default
     } catch (e) {
-      console.error(_('The plugin §e%s§r loaded failure!', name))
+      console.error(_('The plugin §e%s§r loaded failure!', displayName))
       throw e
     }
     if (typeof plugin !== 'function') {
-      throw new TypeError(_('The plugin §e%s§r loaded failure!', name))
+      throw new TypeError(_('The plugin §e%s§r loaded failure!', displayName))
     }
-    const fn: Plugin = async (info: string | PackageInfo, dir?: string, options?: {}) => {
+    const fn: Plugin = (async (info: string | PackageInfo, dir?: string, options?: {}) => {
       let pkg: PackageInfo
       if (typeof info === 'string') {
         pkg = await fs.readJson(info)
       }
       if (pkg.name in pkgs) {
-        throw new Error(_('The plugin §e%s§r already existed!', pkg.name))
+        throw new Error(_('The plugin §e%s§r already existed!', displayName))
       }
       if (pkg.pcraft !== pcraft) {
         throw new Error(_(
           'The version of Pcraft used by the plugin §e%s§r is wrong! (current: %s, need: %s)',
-          pkg.name, pcraft, pkg.pcraft
+          displayName, pcraft, pkg.pcraft
         ))
       }
       if (!pkg.displayName) {
-        pkg.displayName = upperFirst(camelCase(pkg.name.replace(/$pcraft-plugin-/, '')))
+        pkg.displayName = displayName
       }
-      fn.pkg = pkg
+      (fn as any).pkg = pkg
       pkgs[pkg.name] = fn
       await lock()
 
@@ -120,21 +123,19 @@ export default (plugins: string[], app: Application) => {
           throw new Error(_(
             'Dependencie(s) %s of the plugin §e%s§r loading failure!',
             noDeps.join(', '),
-            pkg.name
+            displayName
           ))
         }
       }
-
-      freeze(pkg)
 
       if (dir) {
         dir = resolvePath(dir)
         if (await fs.pathExists(dir)) await fn.register(dir)
       }
-    }
+    }) as any
 
-    fn.listeners = []
-    fn.commands = []
+    (fn as any).listeners = []
+    ;(fn as any).commands = []
 
     fn.addListenerAll = (path: string) => loadClass(path)
       .then(c => (c = c.map(Li => fn.addListener(new Li(app, fn)))) &&
@@ -143,7 +144,13 @@ export default (plugins: string[], app: Application) => {
     fn.addListener = (type: string | typeof Listener, listener?: IListener) => {
       let start = fn.listeners.length - 1
       if (type instanceof Listener) {
-        fn.listeners = fn.listeners.concat(type.handlers.filter(f => f.eventType))
+        (fn as any).listeners = fn.listeners.concat(type.handlers
+          .filter(f => f.eventType).map(f => {
+            const fun = f.bind(type)
+            fun.eventType = f.eventType
+            fun.eventLevel = f.eventLevel
+            return fun
+          }))
         Object.freeze(type.handlers)
       } else if (typeof type === 'string' && type) {
         listener.eventType = type
@@ -182,17 +189,23 @@ export default (plugins: string[], app: Application) => {
         let caller: ICommand = (
           sender: CommandSender,
           command: string,
-          curClias: string = cmd
+          curAlias: string = cmd
         ) => {
           command = command.trim()
           argv.sender = sender
-          argv.clias = curClias
-          argv.text = curClias + ' ' + command
+          argv.curAlias = curAlias
+          argv.text = curAlias + ' ' + command
           argv.dispatchCmd(command)
         }
         caller.commandName = cmd
         caller.commandDescription = description
         ;(caller as any).commandAlias = freezed
+
+        COMMAND_MAP.forEach(map => commander[map[0]] &&
+          commander[map[0]].forEach(args => argv[map[1]](...args)))
+        if (commander[COMMANDS]) {
+          commander[COMMANDS].forEach(([a, b, f, c]) => argv.command(a, b, f.bind(commander), c))
+        }
         const id = fn.commands.push(caller) - 1
         return () => {
           fn.commands[id] = null
@@ -205,12 +218,12 @@ export default (plugins: string[], app: Application) => {
           let caller: ICommand = (
             sender: CommandSender,
             command: string,
-            curClias: string = cmd
+            curAlias: string = cmd
           ) => {
             command = command.trim()
             argv.sender = sender
-            argv.clias = curClias
-            argv.text = curClias + ' ' + command
+            argv.curAlias = curAlias
+            argv.text = curAlias + ' ' + command
             argv.dispatchCmd(command)
           }
           const lis = listener as (cmd: Args) => any
@@ -237,17 +250,14 @@ export default (plugins: string[], app: Application) => {
       if (await fs.pathExists(commanderPath)) await fn.addCommanderAll(commanderPath)
     }
 
-    fn.onDisable = (fun: () => any) => (fn._onDisable = fun)
+    (fn as any).logger = app.getLogger(displayName)
 
-    fn.clear = () => ((fn.listeners = null), (fn.commands = null),
-      fn._onDisable && fn._onDisable())
+    fn.onDisable = (fun: () => any) => ((fn as any)._onDisable = fun)
 
     await plugin(fn, app)
-    Object.freeze(fn.listeners)
-    Object.freeze(fn.command)
-    Object.freeze(fn)
+    freeze(fn)
 
-    console.info(_('The plugin §e%s§r is loaded!', name))
+    console.info(_('The plugin §e%s§r is loaded!', displayName))
   })().catch(e => {
     delete pkgs[name]
     console.error(e)

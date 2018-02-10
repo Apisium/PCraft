@@ -13,5 +13,6 @@
   "The version of Pcraft used by the plugin §e%s§r is wrong! (current: %s, need: %s)": "插件 §e%s§r 需要的 Pcraft 版本错误! (当前: %s, 需要: %s)",
 
   "The command §e/%s§r registration success!": "命令 §e/%s§r 注册成功!",
-  "The command §e/%s§r of the plugin %s has already existed!": "命令 §e/%s§r (%s 插件的) 已存在!"
+  "The command §e/%s§r of the plugin %s has already existed!": "命令 §e/%s§r (%s 插件的) 已存在!",
+  "Missing necessary parameters: §e--%s§r": "缺少必要的参数: §e--%s§r"
 }

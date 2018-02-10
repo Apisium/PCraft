@@ -1,4 +1,5 @@
 import * as y18n from 'y18n'
+import * as freeze from 'deep-freeze-node'
 import { join } from 'path'
 
 import color from './colors'
@@ -7,61 +8,79 @@ import Y18n from './type/Y18n'
 import eventProxy from './eventProxy'
 import Application from './Application'
 import loadPlugin from './plugin/loadPlugin'
-import * as freeze from 'deep-freeze-node'
+import { APPLICATION } from './symbols'
 import { define as definePlayer, checkType } from './entity/player/Player'
 import { define as defineCommandSender } from './type/CommandSender'
 
 const { pcraft } = require('../package.json')
-const { red, gold, green, gray } = color
+const { red, gold, green, gray, aqua } = color
 
 const PCRAFT = gray('Pcraft:')
-const LEFT = gray('[')
+const LEFT = gray('Pcraft: [')
+const MID = gray(' |')
 const RIGHT = gray(']')
 
 export default ({
   pkg: { config, dependencies = {} },
   server,
+  invoke,
   helpers,
   register,
   addCommand
 }) => {
+  server = server.get()
   config.locale = config.locale || 'zh_CN'
   const y = y18n({ locale: config.locale, directory: join(__dirname, '../locales') })
   const _ = y.__
   const ERROR = LEFT + red(_('Error')) + RIGHT
   const WARN = LEFT + gold(_('Warn')) + RIGHT
   const INFO = LEFT + green(_('Info')) + RIGHT
+  const ERROR2 = LEFT + red(_('Error')) + MID
+  const WARN2 = LEFT + gold(_('Warn')) + MID
+  const INFO2 = LEFT + green(_('Info')) + MID
 
   const id = Symbol('Application')
   const sender = server.getConsoleSender()
-  global.console.debug = console.log
-  global.console.log =
-    (...text) => { sender.sendMessage(format([PCRAFT, ...text])) }
-  global.console.error =
-    (...text) => { sender.sendMessage(format([PCRAFT, ERROR, ...text])) }
-  global.console.warn =
-    (...text) => { sender.sendMessage(format([PCRAFT, WARN, ...text])) }
-  global.console.info =
-    (...text) => { sender.sendMessage(format([PCRAFT, INFO, ...text])) }
+  Object.assign(global.console, {
+    debug: console.log,
+    log (...text) { sender.sendMessage(format([PCRAFT, ...text])) },
+    error (...text) { sender.sendMessage(format([ERROR, ...text])) },
+    warn (...text) { sender.sendMessage(format([WARN, ...text])) },
+    info (...text) { sender.sendMessage(format([INFO, ...text])) }
+  })
 
   const result: any = {
     disable: () => {},
     emit: (event, cb) => () => {}
   }
 
-  freeze(config)
-  const app: Application = {
-    y,
+  const app: Application = global[APPLICATION] = freeze(Object.defineProperties({
     pcraft,
     config,
-    get bannedPlayers () { return null },
     banIp (address: string) { server.banIp(address) },
     unBanIp (address: string) { server.unBanIp(address) },
     broadcast (msg: string, permission?: string) {
       if (performance) server.broadcast(msg, permission)
       else server.broadcastMessage(msg)
+    },
+    getLogger (name) {
+      const t = aqua(name) + RIGHT
+      const t2 = LEFT + t
+      return {
+        ...console,
+        log (...text) { sender.sendMessage(format([t2, ...text])) },
+        error (...text) { sender.sendMessage(format([ERROR2, t, ...text])) },
+        warn (...text) { sender.sendMessage(format([WARN2, t, ...text])) },
+        info (...text) { sender.sendMessage(format([INFO2, t, ...text])) }
+      }
     }
-  }
+  }, {
+    y: { value: y },
+    bannedPlayers: { get: () => null },
+    players: { get: () =>
+      invoke({ name: 'getOnlinePlayers' }, { name: 'toArray' })
+        .map(p => definePlayer(p.get())) }
+  }))
 
   loadPlugin(
     Object
@@ -100,9 +119,9 @@ export default ({
         })
       })
 
-      result.disable = () => Promise
-        .all(Object.values(p => p.clear).filter(Boolean))
-        .catch(console.error)
+      // result.disable = () => Promise
+      //   .all(Object.values(p => p.clear).filter(Boolean))
+      //   .catch(console.error)
       result.emit = event => {
         event = event.get()
         let type: string = event.getEventName()
@@ -121,5 +140,6 @@ export default ({
       registerCmds.forEach(args => addCommand(...args))
       registerCmds = null
     })
+    .catch(console.error)
   return result
 }

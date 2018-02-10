@@ -23,7 +23,8 @@ const map = {
 }
 export default (text: any[]) => parse(text.map(d => {
   const t = typeof d
-  return t === 'object' || t === 'function' ? d.stack ? d.stack : inspect(d, false, 2, true)
+  return t === 'object' || t === 'function'
+    ? d instanceof Error && d.stack ? d.stack : inspect(d, false, 2, true)
     : t === 'undefined' ? 'undefined' : d
 }).join(' ')).map(e =>
   e.styles.length

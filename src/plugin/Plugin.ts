@@ -8,30 +8,28 @@ import CommandSender from '../type/CommandSender'
 export default interface Plugin {
   (pkg: string | PackageInfo, dir?: string, options?: {}): Promise<void>
 
-  config?: any
-  pkg?: PackageInfo
-  views?: { [name: string]: (data: any) => string }
-  listeners?: IListener[]
-  commands?: ICommand[]
-  _onDisable? (): any
-  clear? (): any
+  readonly config?: any
+  readonly pkg: PackageInfo
+  readonly views?: { [name: string]: (data: any) => string }
+  readonly listeners: IListener[]
+  readonly commands: ICommand[]
+  readonly logger: Console
 
-  addCommander? (
+  addCommander (
     cmd: string,
     listener: typeof Commander | ((cmd: Args) => any),
     description?: string,
     alias?: string[]
   ): Cancel
-  addCommanderAll? (path: string): Promise<Cancel>
+  addCommanderAll (path: string): Promise<Cancel>
 
-  render? (name: string, data?: any): string
+  render (name: string, data?: any): string
 
-  register? (dir: string): Promise<void>
-  onDisable? (callback: () => any): void
+  register (dir: string): Promise<void>
+  onDisable (callback: () => any): void
 
-  addListenerAll? (path: string): Promise<Cancel>
-  addListener? (type: string | typeof Listener, listener?: IListener): Cancel
-  [name: string]: any
+  addListenerAll (path: string): Promise<Cancel>
+  addListener (type: string | typeof Listener, listener?: IListener): Cancel
 }
 export type Cancel = () => void
 export interface IListener {

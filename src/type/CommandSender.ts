@@ -4,7 +4,7 @@ import format from '../format'
 
 export default interface CommandSender extends Permissible {
   name: string
-  send (...msg: string[])
+  send (...msg: any[])
 }
 export const define = obj => defineProps(define1(obj), {
   name: { get: 'getName', set: 'setName' },

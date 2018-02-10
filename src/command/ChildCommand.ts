@@ -1,10 +1,12 @@
-import Commander from './Commander'
+import { COMMANDS } from '../symbols'
 
 export default (
   name: string | string[],
   description: string,
   handler?: any
-): any => (target: Commander, key, descriptor) => {
-  target.yargs.command(name, description, descriptor.value.bind(target), handler)
+): any => (target, key, descriptor) => {
+  (target[COMMANDS] || (target[COMMANDS] = []))
+    .push([name, description, descriptor.value, handler])
+  descriptor.value[COMMANDS] = name
   return descriptor
 }

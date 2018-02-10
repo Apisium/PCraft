@@ -4,6 +4,7 @@ import CommandSender from '../type/CommandSender'
 export interface Args extends Argv {
   readonly sender: CommandSender
   readonly text: string
-  readonly clias: string
+  readonly curAlias: string
+  readonly [key: string]: any
 }
 export default Args
