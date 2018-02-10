@@ -1,6 +1,7 @@
 # Build
 /build
 /lib
+dev.js
 
 # Logs
 logs
