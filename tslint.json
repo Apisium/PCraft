@@ -12,6 +12,7 @@
     "object-literal-sort-keys": false,
     "interface-name": false,
     "forin": false,
-    "align": false
+    "align": false,
+    "no-bitwise": false
   }
 }

@@ -25,10 +25,9 @@ export default ({
   server,
   invoke,
   helpers,
-  register,
-  addCommand
+  registerEvent,
+  registerCommand
 }) => {
-  server = server.get()
   config.locale = config.locale || 'zh_CN'
   const y = y18n({ locale: config.locale, directory: join(__dirname, '../locales') })
   const _ = y.__
@@ -78,8 +77,7 @@ export default ({
     y: { value: y },
     bannedPlayers: { get: () => null },
     players: { get: () =>
-      invoke({ name: 'getOnlinePlayers' }, { name: 'toArray' })
-        .map(p => definePlayer(p.get())) }
+      invoke({ name: 'getOnlinePlayers' }, { name: 'toArray' }).map(p => definePlayer(p)) }
   }))
 
   loadPlugin(
@@ -103,9 +101,8 @@ export default ({
             return
           }
           cmds.push(name)
-          registerCmds.push([(cmder, alias, args) => {
+          registerCmds.push([(cmder, args, alias) => {
             try {
-              cmder = cmder.get()
               c(
                 checkType(cmder) ? definePlayer(cmder) : defineCommandSender(cmder),
                 args,
@@ -123,8 +120,9 @@ export default ({
       //   .all(Object.values(p => p.clear).filter(Boolean))
       //   .catch(console.error)
       result.emit = event => {
-        event = event.get()
         let type: string = event.getEventName()
+        const i = type.lastIndexOf('.')
+        if (~i) type = type.substring(i + 1)
         if (eventProxy[type]) event = eventProxy[type](event)
         type = type.substring(0, type.length - 5)
         event.type = type
@@ -135,9 +133,9 @@ export default ({
       }
 
       cmds = null
-      register(...allEvent)
+      registerEvent(...allEvent)
       allEvent = null
-      registerCmds.forEach(args => addCommand(...args))
+      registerCmds.forEach(args => registerCommand(...args))
       registerCmds = null
     })
     .catch(console.error)

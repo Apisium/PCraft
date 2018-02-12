@@ -2,8 +2,32 @@
 
 A plugin system of minecraft.
 
+## Projects
+
+[PCraft-Core](https://github.com/Apisium/PCraft-Core): The Java core of PCraft.
+
+[PCraft-Bukkit](https://github.com/Apisium/PCraft): The Bukkit plugin of PCraft.
+
+[PCraft-Nukkit](https://github.com/Apisium/PCraft-Nukkit): The Nukkit plugin of PCraft.
+
 ## Install
 
 ```bash
 npm install pcraft
 ```
+
+## Usage
+
+Just execute this command to install plugins:
+
+```bash
+npm install pcraft-plugin-xxx
+```
+
+## Author
+
+[Apisium Studio](https://github.com/Apisium)
+
+## License
+
+[MIT-License](./LICENSE)
