@@ -48,6 +48,18 @@ export default ({
     info (...text) { sender.sendMessage(format([INFO, ...text])) }
   })
 
+  if (helpers) {
+    const fns: any = {}
+    if (typeof helpers.setTimeout === 'function') {
+      fns.setTimeout = (fn, time = 0, ...args) => typeof fn === 'function' &&
+        helpers.setTimeout(() => fn.apply(null, args), time | 0)
+    }
+    if (typeof helpers.clearTimeout === 'function') {
+      fns.clearTimeout = i => i && helpers.clearTimeout(i | 0)
+    }
+    Object.assign(global, fns)
+  }
+
   const result: any = {
     disable: () => {},
     emit: (event, cb) => () => {}
