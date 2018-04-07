@@ -1,3 +1,4 @@
+import './prettyError'
 import * as y18n from 'y18n'
 import * as freeze from 'deep-freeze-node'
 import { join } from 'path'
@@ -5,8 +6,10 @@ import { join } from 'path'
 import color from './colors'
 import format from './format'
 import Y18n from './type/Y18n'
+import Plugin from './plugin/Plugin'
 import eventProxy from './eventProxy'
 import Application from './Application'
+import startDevServer from './devServer'
 import loadPlugin from './plugin/loadPlugin'
 import { APPLICATION } from './symbols'
 import { define as definePlayer, checkType } from './entity/player/Player'
@@ -99,12 +102,12 @@ export default ({
     app
   )
     .then(pkgs => {
-      const plugins = Object.values(pkgs)
-      let allEvent = new Set()
-      let cmds = []
-      let registerCmds = []
-      plugins.forEach(p => {
-        p.listeners.forEach(l => allEvent.add(l.eventType))
+      let plugins = Object.values(pkgs)
+      const cmds = []
+      const allEvent = new Set<string>()
+      const register = (p: Plugin, reload: boolean = false) => {
+        p.listeners.forEach(({ eventType }) => reload
+          ? allEvent.has(eventType) && registerEvent(eventType) : allEvent.add(eventType))
         p.commands.reverse().forEach(c => {
           const name = c.commandName
           if (cmds.includes(name)) {
@@ -113,7 +116,7 @@ export default ({
             return
           }
           cmds.push(name)
-          registerCmds.push([(cmder, args, alias) => {
+          registerCommand((cmder, args, alias) => {
             try {
               c(
                 checkType(cmder) ? definePlayer(cmder) : defineCommandSender(cmder),
@@ -123,14 +126,23 @@ export default ({
             } catch (e) {
               console.error(e)
             }
-          }, name, c.commandDescription, c.commandAlias])
+          }, name, c.commandDescription, c.commandAlias)
           console.info(_('The command §e/%s§r registration success!', name))
         })
-      })
+        p.disable = () => {
+          (p as any).listeners = null
+          p.commands.forEach(c => c.name)
+          let re
+          if (typeof (p as any)._onDisable === 'function') re = (p as any)._onDisbale.call(p, p)
+          delete pkgs[p.name]
+          plugins.splice(plugins.findIndex(pl => pl.name === p.name), 1)
+          return re
+        }
+      }
 
-      // result.disable = () => Promise
-      //   .all(Object.values(p => p.clear).filter(Boolean))
-      //   .catch(console.error)
+      result.disable = () => Promise
+        .all(plugins.map(p => p.disable))
+        .catch(console.error)
       result.emit = event => {
         let type: string = event.getEventName()
         const i = type.lastIndexOf('.')
@@ -144,11 +156,17 @@ export default ({
         }).filter(Boolean)).catch(console.error)
       }
 
-      cmds = null
+      plugins.forEach(p => register(p))
       registerEvent(...allEvent)
-      allEvent = null
-      registerCmds.forEach(args => registerCommand(...args))
-      registerCmds = null
+      if (config.debug) {
+        startDevServer(app).on('reload', (name: string) => {
+          loadPlugin([name], app).then(pkgs1 => {
+            for (const n in pkgs1) if (n in pkgs) pkgs[n].disable(pkgs[n])
+            plugins = Object.values(Object.assign(pkgs, pkgs1))
+            Object.values(pkgs1).forEach(p => register(p, true))
+          })
+        })
+      }
     })
     .catch(console.error)
   return result

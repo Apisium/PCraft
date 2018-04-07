@@ -26,7 +26,8 @@ export default interface Plugin {
   render (name: string, data?: any): string
 
   register (dir: string): Promise<void>
-  onDisable (callback: () => any): void
+  onDisable (callback: () => any): any
+  disable (plugin: Plugin): any
 
   addListenerAll (path: string): Promise<Cancel>
   addListener (type: string | typeof Listener, listener?: IListener): Cancel

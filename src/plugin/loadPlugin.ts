@@ -252,7 +252,7 @@ export default (plugins: string[], app: Application) => {
 
     (fn as any).logger = app.getLogger(displayName)
 
-    fn.onDisable = (fun: () => any) => ((fn as any)._onDisable = fun)
+    fn.onDisable = (fun: (plugin: Plugin) => any) => ((fn as any)._onDisable = fun)
 
     await plugin(fn, app)
     freeze(fn)

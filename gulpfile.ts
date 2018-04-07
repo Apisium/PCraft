@@ -16,6 +16,9 @@ gulp.task('clean', () => fs.emptyDir(dest))
 
 gulp.task('watch', ['clean', 'dev'], () => (gulp as any).watch(src, ['dev']))
 
+gulp.task('update', ['dev'], () => {
+  
+})
 gulp.task('dev', () => gulp
   .src(src)
   .pipe(sourcemaps.init())

@@ -1,3 +1,4 @@
-export default interface World {
+export interface World {
   name: string
 }
+export default {}
