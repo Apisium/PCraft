@@ -42,7 +42,7 @@ export default ({
   const INFO2 = LEFT + green(_('Info')) + MID
 
   const id = Symbol('Application')
-  const sender = server.getConsoleSender()
+  const sender = server.consoleSender
   Object.assign(global.console, {
     debug: console.log,
     log (...text) { sender.sendMessage(format([PCRAFT, ...text])) },
